@@ -217,13 +217,13 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 	if err != nil {
 		return nil, errors.New("3rd argument must be a numeric string")
 	}
-	valAsBytes,err := stub.GetState(name)
+	valAsBytes,err := stub.GetState(name) //get date by key in json from block
 	if err != nil {
 		return  nil,errors.New("Fiail get name from json")
 	}
 	res := Customer{}
 
-	json.Unmarshal(valAsBytes,&res)
+	json.Unmarshal(valAsBytes,&res)  //json to bytes and keep address to variable res
 	if  res.Name == name {
 		if len(args) != 4 {
 			return  nil, errors.New("Incorrect number of argument request 4")
@@ -253,23 +253,16 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 		if err != nil {
 			return nil,errors.New("can't put into block ")
 		}
-		customerAsbytes, err :=  stub.GetState(customerIndexStr)
-		if err != nil {
-			return  nil,errors.New("Get index Failed ")
-		}
+		//customerAsbytes, err :=  stub.GetState(customerIndexStr)
+		//if err != nil {
+		//	return  nil,errors.New("Get index Failed ")
+		//}
 		//var putJson map[string]interface{}
-		var customerIndex []string
-		json.Unmarshal(customerAsbytes,&customerIndex)
+		//var customerIndex []string
+		//json.Unmarshal(customerAsbytes,&customerIndex)
 		//add and update index
-		for i := 0 ;i< len(customerIndex);i++ {
-			if customerIndex[i] == name{
-				customerIndex[i] = name
-				fmt.Println("update index complete ")
-
-			}
-		}
-		jsonAsBytes, _ := json.Marshal(customerIndex)
-		err = stub.PutState(customerIndexStr, jsonAsBytes) //store name of customer
+		//jsonAsBytes, _ := json.Marshal(customerIndex)
+		//err = stub.PutState(customerIndexStr, jsonAsBytes) //store name of customer
 		fmt.Println("- end update customer complete")
 		return  nil,nil
 	} else {
