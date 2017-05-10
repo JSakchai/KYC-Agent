@@ -219,7 +219,7 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 	}
 	valAsBytes,err := stub.GetState(name)
 	if err != nil {
-		return  errors.New("Fiail get name from json")
+		return  nil,errors.New("Fiail get name from json")
 	}
 	res := Customer{}
 
@@ -255,7 +255,7 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 		}
 		customerAsbytes, err :=  stub.GetState(customerIndexStr)
 		if err != nil {
-			return  errors.New("Get index Failed ")
+			return  nil,errors.New("Get index Failed ")
 		}
 		//var putJson map[string]interface{}
 		var customerIndex []string
