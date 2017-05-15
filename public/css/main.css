@@ -272,6 +272,12 @@ label {
   position: relative;
   z-index: 4; }
 
+.customerWrap {
+  width: 42%;
+  display: inline-block;
+  text-align: right;
+  color: #fff; }
+
 .marblesWrap {
   width: 42%;
   display: inline-block;

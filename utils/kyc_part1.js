@@ -1,5 +1,5 @@
 // ==================================
-// Part 1 - incoming messages, look for type
+// KYC Part 1 - incoming messages, look for type
 // ==================================
 var ibc = {};
 var chaincode = {};
@@ -11,26 +11,27 @@ module.exports.setup = function(sdk, cc){
 };
 
 module.exports.process_msg = function(ws, data){
+	console.log('kyc part1 - process_msg');
 	if(data.v === 1){																						//only look at messages for part 1
 		if(data.type == 'create'){
-			console.log('its a create!');
-			// if(data.name && data.color && data.size && data.user){
-			// 	chaincode.invoke.init_marble([data.name, data.color, data.size, data.user], cb_invoked);	//create a new marble
-			// }
+			console.log('kyc - its a create!');
 			if(data.name && data.telno && data.age && data.occupation){
 				chaincode.invoke.new_customer([data.name, data.telno, data.age, data.occupation], cb_invoked);	//create a new customer
 			}
-		}																						//only look at messages for part 1
-		else if(data.type == 'createcustomer'){
+		}																					//only look at messages for part 1
+		if(data.type == 'createcustomer'){
 			console.log('its a createcustomer!');
 			if(data.name && data.telno && data.age && data.occupation){
+				console.log('kyc - c cus invoke');
 				chaincode.invoke.new_customer([data.name, data.telno, data.age, data.occupation], cb_invoked);	//create a new customer
 			}
 		}
+        
 		else if(data.type == 'get'){
-			console.log('get marbles msg');
-			chaincode.query.read(['_marbleindex'], cb_got_index);
+			console.log('get customers msg');
+			chaincode.query.read(['_customerindex'], cb_got_index);
 		}
+        /*
 		else if(data.type == 'transfer'){
 			console.log('transfering msg');
 			if(data.name && data.user){
@@ -43,30 +44,31 @@ module.exports.process_msg = function(ws, data){
 				chaincode.invoke.delete([data.name]);
 			}
 		}
+        */
 		else if(data.type == 'chainstats'){
 			console.log('chainstats msg');
 			ibc.chain_stats(cb_chainstats);
 		}
 	}
 
-	//got the marble index, lets get each marble
+	//got the customer index, lets get each customer
 	function cb_got_index(e, index){
-		if(e != null) console.log('[ws error] did not get marble index:', e);
+		console.log('index', index);
+		if(e != null) console.log('[ws error] did not get customer index:', e);
 		else{
 			try{
-				console.log('index', index)
 				var json = JSON.parse(index);
 				var keys = Object.keys(json);
-				console.log('keys ',keys)
 				var concurrency = 1;
 
 				//serialized version
 				async.eachLimit(keys, concurrency, function(key, cb) {
 					console.log('!', json[key]);
 					chaincode.query.read([json[key]], function(e, customer) {
-						if(e != null) console.log('[ws error] did not get marble:', e);
+						if(e != null) console.log('[ws error] did not get customer:', e);
 						else {
-							if(customer) sendMsg({msg: 'customers', e: e, customer: JSON.parse(customer)});
+							console.log('read !!!! ', JSON.parse(customer));
+							if(customer) sendMsg({msg: 'customer', e: e, customer: JSON.parse(customer)});
 							cb(null);
 						}
 					});
@@ -75,7 +77,7 @@ module.exports.process_msg = function(ws, data){
 				});
 			}
 			catch(e){
-				console.log('[ws error] could not parse response', e, index);
+				console.log('[ws error] could not parse response', e);
 			}
 		}
 	}
@@ -114,7 +116,7 @@ module.exports.process_msg = function(ws, data){
 				ws.send(JSON.stringify(json));
 			}
 			catch(e){
-				console.log('[ws error] could not send msg', e, json);
+				console.log('[ws error] could not send msg', e);
 			}
 		}
 	}

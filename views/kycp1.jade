@@ -1,0 +1,36 @@
+extends ./template/layout.jade
+	
+	
+// --------------- Header -------------- //
+block custom_header
+	script(src='/js/kycp1.js?v=#{bag.jshash}')
+	script(type='text/javascript').
+		$(document).ready(function(){
+			
+		});
+		
+		
+// --------------- Navigation Bar  -------------- //
+block navpanel
+	include ./template/nav_kycp1.jade
+	
+	
+// --------------- Main Stuff  -------------- //
+block content
+	#contentPanel
+		
+		#blockdate(title="date of last block") loading...
+		
+		
+		// --------------- Home Panel
+		//- include ./panel_home.jade
+
+		// --------------- KYC Home
+		include ./panel_customer.jade
+		
+		
+		// --------------- Create Panel
+		include ./panel_createcustomer.jade
+		
+block footer
+	include ./template/blockchain.jade

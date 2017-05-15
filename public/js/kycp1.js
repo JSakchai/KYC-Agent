@@ -7,15 +7,15 @@ var bgcolors = ['whitebg', 'blackbg', 'redbg', 'greenbg', 'bluebg', 'purplebg', 
 // =================================================================================
 $(document).on('ready', function() {
 	connect_to_server();
-	$('input[name="name"]').val('r' + randStr(6));
+	$('input[name="name"]').val('cus' + randStr(6));
 	
 	// =================================================================================
 	// jQuery UI Events
 	// =================================================================================
-	$('#submit').click(function(){
+	$('#submitcustomer').click(function(){
 		console.log('creating customer');
 		var obj = 	{
-						type: 'create',
+						type: 'createcustomer',
 						name: $('input[name="name"]').val(),
 						telno: $('input[name="telno"]').val(),
 						age: $('select[name="age"]').val(),
@@ -33,12 +33,12 @@ $(document).on('ready', function() {
 		return false;
 	});
 	
-	$('#homeLink').click(function(){
+	$('#customerLink').click(function(){
 		showHomePanel();
 	});
 
 	$('#createLink').click(function(){
-		$('input[name="name"]').val('r' + randStr(6));
+		$('input[name="name"]').val('');
 	});
 
 	
@@ -60,25 +60,25 @@ $(document).on('ready', function() {
 	
 	
 	//drag and drop marble
-	$('#user2wrap, #user1wrap, #trashbin').sortable({connectWith: '.sortable'}).disableSelection();
-	$('#user2wrap').droppable({drop:
+	$('#customerwrap, #trashbin').sortable({connectWith: '.sortable'}).disableSelection();
+	$('#customerwrap').droppable({drop:
 		function( event, ui ) {
 			var user = $(ui.draggable).attr('user');
-			if(user.toLowerCase() != bag.setup.USER2){
+			if(user.toLowerCase() != bag.setup.CUSTOMER){
 				$(ui.draggable).addClass('invalid');
-				transfer($(ui.draggable).attr('id'), bag.setup.USER2);
+				transfer($(ui.draggable).attr('id'), bag.setup.CUSTOMER);
 			}
 		}
 	});
-	$('#user1wrap').droppable({drop:
-		function( event, ui ) {
-			var user = $(ui.draggable).attr('user');
-			if(user.toLowerCase() != bag.setup.USER1){
-				$(ui.draggable).addClass('invalid');
-				transfer($(ui.draggable).attr('id'), bag.setup.USER1);
-			}
-		}
-	});
+	// $('#user1wrap').droppable({drop:
+	// 	function( event, ui ) {
+	// 		var user = $(ui.draggable).attr('user');
+	// 		if(user.toLowerCase() != bag.setup.USER1){
+	// 			$(ui.draggable).addClass('invalid');
+	// 			transfer($(ui.draggable).attr('id'), bag.setup.USER1);
+	// 		}
+	// 	}
+	// });
 	$('#trashbin').droppable({drop:
 		function( event, ui ) {
 			var id = $(ui.draggable).attr('id');
@@ -105,16 +105,17 @@ $(document).on('ready', function() {
 	// ================================================================================
 	//show admin panel page
 	function showHomePanel(){
-		$('#homePanel').fadeIn(300);
-		$('#createPanel').hide();
+		$('#customerPanel').fadeIn(300);
+		$('#createcustomerPanel').hide();
 		
 		var part = window.location.pathname.substring(0,3);
-		window.history.pushState({},'', part + '/home');						//put it in url so we can f5
+		console.log('kycp1 - part ', part);
+		window.history.pushState({},'', part + '/customer');						//put it in url so we can f5
 		
 		console.log('getting new balls');
 		setTimeout(function(){
-			$('#user1wrap').html('');											//reset the panel
-			$('#user2wrap').html('');
+			$('#customerwrap').html('');											//reset the panel
+			$('#brokerwrap').html('');
 			ws.send(JSON.stringify({type: 'get', v: 1}));						//need to wait a bit
 			ws.send(JSON.stringify({type: 'chainstats', v: 1}));
 		}, 1000);
@@ -178,10 +179,15 @@ function connect_to_server(){
 
 	function onMessage(msg){
 		try{
+			console.log('onMessage - ', msg.data);
 			var msgObj = JSON.parse(msg.data);
 			if(msgObj.marble){
 				console.log('rec', msgObj.msg, msgObj);
 				build_ball(msgObj.marble);
+			}
+			else if(msgObj.customer){
+				console.log('rec - cus', msgObj.msg, msgObj);
+				build_customer(msgObj.customer);
 			}
 			else if(msgObj.msg === 'chainstats'){
 				console.log('rec', msgObj.msg, ': ledger blockheight', msgObj.chainstats.height, 'block', msgObj.blockstats.height);
@@ -240,5 +246,33 @@ function build_ball(data){
 			$('#user2wrap').append(html);
 		}
 	}
+	return html;
+}
+
+function build_customer(data){
+	var html = '';
+	var colorClass = '';
+	var size = 'fa-5x';
+	
+	console.log('data', data);
+	data.name = escapeHtml(data.name);
+	data.color = escapeHtml('blue');
+	//data.user = escapeHtml(data.user);
+	
+	console.log('got a customer: ', data.color);
+	if(!$('#' + data.name).length){								//only populate if it doesn't exists
+		//if(data.size == 16) size = 'fa-3x';
+		if(data.color) colorClass = data.color.toLowerCase();
+		
+		//html += '<span id="' + data.name + '" class="fa fa-circle ' + size + ' ball ' + colorClass + ' title="' + data.name + '" user="customer">'+data.name+'</span>';
+		html += '<span style="font-size: 200%" id="' + data.name + '" class="fa fa-square fa-1x ball blue title="' + data.name +'">  '+data.name+'  </span>'
+		//if(data.user && data.user.toLowerCase() == bag.setup.USER1){
+			$('#customerwrap').append(html);
+		//}
+		// else{
+		// 	$('#user2wrap').append(html);
+		// }
+	}
+	console.log('html after build - ', html);
 	return html;
 }
