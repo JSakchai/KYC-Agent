@@ -26,38 +26,27 @@ function build_bag(){
 // Home
 // ============================================================================================================================
 router.route('/').get(function(req, res){
-	res.redirect('/ky');
+	res.redirect('/p1');
 });
 
 // ============================================================================================================================
 // Part 1
 // ============================================================================================================================
 router.route('/p1').get(function(req, res){
-	res.render('part1', {title: 'KYC Part 1', bag: build_bag()});
+	res.render('part1', {title: 'Marbles Part 1', bag: build_bag()});
 });
 router.route('/p1/:page?').get(function(req, res){
-	res.render('part1', {title: 'KYC Part 1', bag: build_bag()});
+	res.render('part1', {title: 'Marbles Part 1', bag: build_bag()});
 });
 
 // ============================================================================================================================
 // Part 2
 // ============================================================================================================================
-// router.route('/p2').get(function(req, res){
-// 	res.render('part2', {title: 'Marbles Part 2', bag: build_bag()});
-// });
-// router.route('/p2/:page?').get(function(req, res){
-// 	res.render('part2', {title: 'Marbles Part 2', bag: build_bag()});
-// });
-
-
-// ============================================================================================================================
-// KYC Part 1
-// ============================================================================================================================
-router.route('/ky').get(function(req, res){
-	res.render('kycp1', {title: 'KYC Part 1', bag: build_bag()});
+router.route('/p2').get(function(req, res){
+	res.render('part2', {title: 'Marbles Part 2', bag: build_bag()});
 });
-router.route('/ky/:page?').get(function(req, res){
-	res.render('kycp1', {title: 'KYC Part 1', bag: build_bag()});
+router.route('/p2/:page?').get(function(req, res){
+	res.render('part2', {title: 'Marbles Part 2', bag: build_bag()});
 });
 
 module.exports = router;

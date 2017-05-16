@@ -13,17 +13,17 @@ $(document).on('ready', function() {
 	// jQuery UI Events
 	// =================================================================================
 	$('#submit').click(function(){
-		console.log('creating customer');
+		console.log('creating marble');
 		var obj = 	{
 						type: 'create',
-						name: $('input[name="name"]').val(),
-						telno: $('input[name="telno"]').val(),
-						age: $('select[name="age"]').val(),
-						occupation: $('input[name="occupation"]').val(),
+						name: $('input[name="name"]').val().replace(' ', ''),
+						color: $('.colorSelected').attr('color'),
+						size: $('select[name="size"]').val(),
+						user: $('select[name="user"]').val(),
 						v: 1
 					};
-		if(obj.name && obj.telno){
-			console.log('creating customer, sending', obj);
+		if(obj.user && obj.name && obj.color){
+			console.log('creating marble, sending', obj);
 			ws.send(JSON.stringify(obj));
 			showHomePanel();
 			$('.colorValue').html('Color');											//reset

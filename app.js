@@ -228,19 +228,15 @@ var options = 	{
 								}
 					},
 					chaincode:{
-						/*zip_url: 'https://github.com/ibm-blockchain/customers/archive/v2.0.zip',
-						unzip_dir: 'customers-2.0/chaincode',													//subdirectroy name of chaincode after unzipped
-						git_url: 'http://gopkg.in/ibm-blockchain/customers.v2/chaincode',						//GO get http url*/
-						//zip_url: 'https://github.com/mekacloud/kyc/archive/master.zip',
-						//unzip_dir: 'kyc-master/chaincode',														//subdirectroy name of chaincode after unzipped
-						//git_url: 'http://gopkg.in/mekacloud/kyc.v0/chaincode',									//GO get http url
-
+						//zip_url: 'https://github.com/ibm-blockchain/marbles/archive/v2.0.zip',
+						//unzip_dir: 'marbles-2.0/chaincode',													//subdirectroy name of chaincode after unzipped
+						//git_url: 'http://gopkg.in/ibm-blockchain/marbles.v2/chaincode',						//GO get http url
 						zip_url: 'https://github.com/JSakchai/KYC-Agent/archive/v2.0.zip',
 						unzip_dir: 'KYC-Agent-2.0/chaincode',													//subdirectroy name of chaincode after unzipped
-						git_url: 'http://gopkg.in/JSakchai/KYC-Agent.v2/chaincode', 
-					
+						git_url: 'http://gopkg.in/JSakchai/KYC-Agent.v2/chaincode',						//GO get http url
 						//hashed cc name from prev deployment, comment me out to always deploy, uncomment me when its already deployed to skip deploying again
-						//deployed_name: '61299d5f87f3f360c609ed9470ff8a53ace39d2d20371b0e210090299cddb87dcfa87ba1426672d35f362a6547ec2d433dedb5d2e1aa4bcb4e241097f815fc90'
+						//deployed_name: '16e655c0fce6a9882896d3d6d11f7dcd4f45027fd4764004440ff1e61340910a9d67685c4bb723272a497f3cf428e6cf6b009618612220e1471e03b6c0aa76cb'
+						//deploy_name:'292bcbe1e9e5b4e496299195d474c12566c8c983dcd85def92ecd2e71fda7ab0f3ae6900995e0b72e9d6264ceb2d999ba255c2666105173c844e6cce5fab649a'
 					}
 				};
 if(process.env.VCAP_SERVICES){
@@ -268,7 +264,7 @@ ibc.load(options, function (err, cc){														//parse/load chaincode, respo
 
 		// ---- To Deploy or Not to Deploy ---- //
 		if(!cc.details.deployed_name || cc.details.deployed_name === ''){					//yes, go deploy
-			cc.deploy('init', ['99'], {delay_ms: 30000}, function(e){					//delay_ms is milliseconds to wait after deploy for conatiner to start, 50sec recommended
+			cc.deploy('init', ['99'], {delay_ms: 30000}, function(e){ 						//delay_ms is milliseconds to wait after deploy for conatiner to start, 50sec recommended
 				check_if_deployed(e, 1);
 			});
 		}
