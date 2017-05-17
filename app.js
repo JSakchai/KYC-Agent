@@ -153,13 +153,13 @@ try{
 	//this hard coded list is intentionaly left here, feel free to use it when initially starting out
 	//please create your own network when you are up and running
 	//var manual = JSON.parse(fs.readFileSync('mycreds_docker_compose.json', 'utf8'));
-<<<<<<< HEAD
+
 	var file = fs.readFileSync('mycreds_bluemix.json', 'utf8');
 	var manual = JSON.parse(file);
 	//console.log('manual :', manual);	
-=======
+
 	var manual = JSON.parse(fs.readFileSync('mycreds_bluemix.json', 'utf8'));
->>>>>>> b37dfd0cf772b40671c17206ebab7f7984428ef1
+
 	var peers = manual.credentials.peers;
 	//console.log('peers :', peers);
 	console.log('loading hardcoded peers');
@@ -240,11 +240,10 @@ var options = 	{
 						git_url: 'http://gopkg.in/JSakchai/KYC-Agent.v2/chaincode',						//GO get http url
 						//hashed cc name from prev deployment, comment me out to always deploy, uncomment me when its already deployed to skip deploying again
 						//deployed_name: '16e655c0fce6a9882896d3d6d11f7dcd4f45027fd4764004440ff1e61340910a9d67685c4bb723272a497f3cf428e6cf6b009618612220e1471e03b6c0aa76cb'
-<<<<<<< HEAD
+
 						//deploy_name:'292bcbe1e9e5b4e496299195d474c12566c8c983dcd85def92ecd2e71fda7ab0f3ae6900995e0b72e9d6264ceb2d999ba255c2666105173c844e6cce5fab649a'
-=======
-						deploy_name:'292bcbe1e9e5b4e496299195d474c12566c8c983dcd85def92ecd2e71fda7ab0f3ae6900995e0b72e9d6264ceb2d999ba255c2666105173c844e6cce5fab649a'
->>>>>>> b37dfd0cf772b40671c17206ebab7f7984428ef1
+
+						
 					}
 				};
 if(process.env.VCAP_SERVICES){

@@ -222,8 +222,7 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 		return  nil,errors.New("Fiail get name from json")
 	}
 	res := Customer{}
-
-	json.Unmarshal(valAsBytes,&res)  //json to bytes and keep address to variable res
+	json.Unmarshal([]byte(valAsBytes),&res)  //json to bytes and keep address to variable res
 	if  res.Name == name {
 		if len(args) != 4 {
 			return  nil, errors.New("Incorrect number of argument request 4")
@@ -242,7 +241,6 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 		if len(args[3]) <= 0 {
 			return  nil, errors.New("the occupation")
 		}
-
 
 		res.Name = name
 		res.TelNo = telno
@@ -269,10 +267,8 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 		return  nil, errors.New("Name not found")
 	}
 
-
-
-
 }
+//
 // ============================================================================================================================
 // Init Customer - create a new customer, store into chaincode state
 // ============================================================================================================================
@@ -313,8 +309,9 @@ func (t *SimpleChaincode) new_customer(stub shim.ChaincodeStubInterface, args []
 	if err != nil {
 		return nil, errors.New("Failed to get customer name")
 	}
+	//jsonMap := make(map[string]interface{})
 	res := Customer{}
-	json.Unmarshal(customerAsBytes, &res)
+	json.Unmarshal([]byte(customerAsBytes), &res)
 	if res.Name == name {
 		fmt.Println("This customer arleady exists: " + name)
 		fmt.Println(res)
