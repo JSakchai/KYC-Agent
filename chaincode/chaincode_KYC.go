@@ -138,7 +138,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		// return res, err
 	} else if function == "remove_trade" { //cancel an open trade order
 		// return t.remove_trade(stub, args)
-	}else if function == "updateCustomer"{
+	}else if function == "update_customer"{
 		res,err := t.update_customer(stub,args)
 		return  res ,err
 	}
@@ -224,9 +224,7 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 	res := Customer{}
 	json.Unmarshal([]byte(valAsBytes),&res)  //json to bytes and keep address to variable res
 	if  res.Name == name {
-		if len(args) != 4 {
-			return  nil, errors.New("Incorrect number of argument request 4")
-		}
+
 		//update argument
 		fmt.Println("=== start init customer ===")
 		if len(args[0]) <= 0 {
