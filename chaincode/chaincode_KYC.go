@@ -238,7 +238,7 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 	res := Customer{}
 	json.Unmarshal([]byte(valAsBytes),&res)  //json to bytes and keep address to variable res
 	if  res.CardId == cardid {
-		if len(args[0] <= 0){
+		if len(args[0]) <= 0{
 			return  nil , errors.New("The card id parameter wrong")
 		}else if len(args[1]) <= 0 {
 			return  nil, errors.New("the Name Parameter wrong")
@@ -248,9 +248,9 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 			return  nil, errors.New("the Age Parameter wrong")
 		}else if len(args[4]) <= 0 {
 			return  nil, errors.New("the birthday Parameter wrong ")
-		}else if len(args[5] <= 0){
+		}else if len(args[5]) <= 0{
 			return  nil, errors.New("the occupation Parameter wrong")
-		}else if len(args[6] <= 0){
+		}else if len(args[6]) <= 0{
 			return  nil,errors.New("the address Parameter wrong")
 		}
 		//update argument
@@ -285,7 +285,7 @@ func  (t *SimpleChaincode) updateBroker(stub shim.ChaincodeStubInterface, args [
 	brkName := args[1]
 	if len(args[0]) <= 0 {
 		return  nil,errors.New("Need  Broker Number paramenter ")
-	}else if len(args[1] <= 0){
+	}else if len(args[1]) <= 0{
 		return  nil, errors.New("Need  Broker Name paramenter")
 	}
 	AsByteBrk,err := stub.GetState(brkNo)
@@ -340,13 +340,13 @@ func (t *SimpleChaincode) new_customer(stub shim.ChaincodeStubInterface, args []
 	if len(args[3]) <= 0 {
 		return nil, errors.New("4th argument must be a non-empty string")
 	}
-	if len(args[4] <= 0){
+	if len(args[4]) <= 0{
 		return nil , errors.New("5th argument must be a non-empty string")
 	}
-	if len(args[5] <= 0){
+	if len(args[5]) <= 0{
 		return nil, errors.New("6th argument must be a non-empty string")
 	}
-	if len(args[6] <= 0){
+	if len(args[6]) <= 0{
 		return nil, errors.New("7th argument must be a non-empty string")
 	}
 	cardid := args[0]
