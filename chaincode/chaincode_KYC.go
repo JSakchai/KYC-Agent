@@ -51,7 +51,7 @@ type Customer struct {
 
 type Broker struct {
 	BrokerName    string     `json:"brokername"`
-	BrokerNo      int        `json:"brokerno"`
+	BrokerNo      string      `json:"brokerno"`
 	AllowCustomer []Customer `json:"allowcustomer"`
 }
 
@@ -293,7 +293,7 @@ func  (t *SimpleChaincode) updateBroker(stub shim.ChaincodeStubInterface, args [
 		return nil, errors.New("Can't Get State of broker number from blockchain   ")
 	}
 	res := Broker{}
-	json.Unmarshal([]byte(AsByteBrk),&res)
+	json.Unmarshal(AsByteBrk,&res)
 	// check and update broker
 	if res.BrokerNo == brkNo {
 		res.BrokerNo = brkNo
@@ -423,7 +423,7 @@ func (t *SimpleChaincode) newBroker(stub shim.ChaincodeStubInterface, args []str
 		return nil, errors.New("Can't Get State from blockchain ")
 	}
 	json.Unmarshal(AsByteBrk,&res)
-	
+
 	if res.BrokerNo == brkno{
 		return nil, errors.New("Broker Duplicate")
 	}else {
