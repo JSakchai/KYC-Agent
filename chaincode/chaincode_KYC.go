@@ -220,21 +220,7 @@ func (t *SimpleChaincode) Write(stub shim.ChaincodeStubInterface, args []string)
 func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, args []string) ([]byte, error){
 	var err error
 	// check argument
-	if len(args[0] <= 0){
-		return  nil , errors.New("The card id parameter wrong")
-	}else if len(args[1]) <= 0 {
-		return  nil, errors.New("the Name Parameter wrong")
-	}else if len(args[2]) <= 0{
-		return  nil, errors.New("the Telno Parameter wrong")
-	}else if len(args[3]) <= 0 {
-		return  nil, errors.New("the Age Parameter wrong")
-	}else if len(args[4]) <= 0 {
-		return  nil, errors.New("the birthday Parameter wrong ")
-	}else if len(args[5] <= 0){
-		return  nil, errors.New("the occupation Parameter wrong")
-	}else if len(args[6] <= 0){
-		return  nil,errors.New("the address Parameter wrong")
-	}
+
 	cardid := args[0]
 	name := args[1]
 	telno := strings.ToLower(args[2])
@@ -252,7 +238,21 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 	res := Customer{}
 	json.Unmarshal([]byte(valAsBytes),&res)  //json to bytes and keep address to variable res
 	if  res.CardId == cardid {
-
+		if len(args[0] <= 0){
+			return  nil , errors.New("The card id parameter wrong")
+		}else if len(args[1]) <= 0 {
+			return  nil, errors.New("the Name Parameter wrong")
+		}else if len(args[2]) <= 0{
+			return  nil, errors.New("the Telno Parameter wrong")
+		}else if args[3] <= 0 {
+			return  nil, errors.New("the Age Parameter wrong")
+		}else if len(args[4]) <= 0 {
+			return  nil, errors.New("the birthday Parameter wrong ")
+		}else if len(args[5] <= 0){
+			return  nil, errors.New("the occupation Parameter wrong")
+		}else if len(args[6] <= 0){
+			return  nil,errors.New("the address Parameter wrong")
+		}
 		//update argument
 		fmt.Println("=== start init customer ===")
 		res.CardId = cardid
