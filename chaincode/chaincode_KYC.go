@@ -27,6 +27,7 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	//"encoding/gob"
 	//"crypto/rand"
+	//"github.com/fabric/core/ledger/statemgmt"
 )
 
 // SimpleChaincode example simple Chaincode implementation
@@ -37,16 +38,19 @@ var customerIndexStr = "_customerindex" //name for the key/value that will store
 var openTradesStr = "_opentrades"       //name for the key/value that will store all open trades
 
 type Customer struct {
+	CardId	    string   `json:"cardid"`
 	Name        string   `json:"name"` //the fieldtags are needed to keep case from bouncing around
 	TelNo       string   `json:"telno"`
 	Age         int      `json:"age"`
+	Birthday    string   `json:"birthday"`
 	Occupation  string   `json:"occupation"`
+	Address     string   `json:"address"`
 	AllowBroke  []Broker `json:"allowbroke"`
 	GauranteeID string   `json:"gauranteeid"`
 }
 
 type Broker struct {
-	Name          string     `json:"name"`
+	BrokerName    string     `json:"brokername"`
 	BrokerNo      int        `json:"brokerno"`
 	AllowCustomer []Customer `json:"allowcustomer"`
 }
@@ -141,6 +145,12 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	}else if function == "update_customer"{
 		res,err := t.update_customer(stub,args)
 		return  res ,err
+	}else if function == "newBroker"{
+		res, err := t.newBroker(stub,args)
+		return res,err
+	}else if function == "updateBroker"{
+		res, err := t.updateBroker(stub,args)
+		return  res, err
 	}
 	fmt.Println("invoke did not find func: " + function) //error
 
@@ -209,56 +219,55 @@ func (t *SimpleChaincode) Write(stub shim.ChaincodeStubInterface, args []string)
 // =================================================================================================================
 func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, args []string) ([]byte, error){
 	var err error
-	// query check name
-	name := args[0]
-	telno := strings.ToLower(args[1])
-	age, err := strconv.Atoi(args[2])
-	occupation := strings.ToLower(args[3])
+	// check argument
+	if len(args[0] <= 0){
+		return  nil , errors.New("The card id parameter wrong")
+	}else if len(args[1]) <= 0 {
+		return  nil, errors.New("the Name Parameter wrong")
+	}else if len(args[2]) <= 0{
+		return  nil, errors.New("the Telno Parameter wrong")
+	}else if len(args[3]) <= 0 {
+		return  nil, errors.New("the Age Parameter wrong")
+	}else if len(args[4]) <= 0 {
+		return  nil, errors.New("the birthday Parameter wrong ")
+	}else if len(args[5] <= 0){
+		return  nil, errors.New("the occupation Parameter wrong")
+	}else if len(args[6] <= 0){
+		return  nil,errors.New("the address Parameter wrong")
+	}
+	cardid := args[0]
+	name := args[1]
+	telno := strings.ToLower(args[2])
+	age, err := strconv.Atoi(args[3])
+	birthday := args[4]
+	occupation := strings.ToLower(args[5])
 	if err != nil {
 		return nil, errors.New("3rd argument must be a numeric string")
 	}
-	valAsBytes,err := stub.GetState(name) //get date by key in json from block
+	address := args[6]
+	valAsBytes,err := stub.GetState(cardid) //get date by key in json from block
 	if err != nil {
 		return  nil,errors.New("Fiail get name from json")
 	}
 	res := Customer{}
 	json.Unmarshal([]byte(valAsBytes),&res)  //json to bytes and keep address to variable res
-	if  res.Name == name {
+	if  res.CardId == cardid {
 
 		//update argument
 		fmt.Println("=== start init customer ===")
-		if len(args[0]) <= 0 {
-			return  nil, errors.New("the Name Parameter wrong")
-		}
-		if len(args[1]) <= 0{
-			return  nil, errors.New("the Telno Parameter wrong")
-		}
-		if len(args[2]) <= 0 {
-			return  nil, errors.New("the Age Parameter wrong")
-		}
-		if len(args[3]) <= 0 {
-			return  nil, errors.New("the occupation")
-		}
-
+		res.CardId = cardid
 		res.Name = name
 		res.TelNo = telno
 		res.Age = age
+		res.Birthday = birthday
 		res.Occupation = occupation
+		res.Address = address
 		str, err := json.Marshal(res)
-		err = stub.PutState(name,str)
+		err = stub.PutState(cardid,str)
 		if err != nil {
 			return nil,errors.New("can't put into block ")
 		}
-		//customerAsbytes, err :=  stub.GetState(customerIndexStr)
-		//if err != nil {
-		//	return  nil,errors.New("Get index Failed ")
-		//}
-		//var putJson map[string]interface{}
-		//var customerIndex []string
-		//json.Unmarshal(customerAsbytes,&customerIndex)
-		//add and update index
-		//jsonAsBytes, _ := json.Marshal(customerIndex)
-		//err = stub.PutState(customerIndexStr, jsonAsBytes) //store name of customer
+
 		fmt.Println("- end update customer complete")
 		return  nil,nil
 	} else {
@@ -266,7 +275,44 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 	}
 
 }
-//
+// ===================================================================================================================
+	// update broker
+// ===================================================================================================================
+func  (t *SimpleChaincode) updateBroker(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var err error
+	//define argument
+	brkNo := args[0]
+	brkName := args[1]
+	if len(args[0]) <= 0 {
+		return  nil,errors.New("Need  Broker Number paramenter ")
+	}else if len(args[1] <= 0){
+		return  nil, errors.New("Need  Broker Name paramenter")
+	}
+	AsByteBrk,err := stub.GetState(brkNo)
+	if err != nil {
+		return nil, errors.New("Can't Get State of broker number from blockchain   ")
+	}
+	res := Broker{}
+	if json.Unmarshal([]byte(AsByteBrk),&res); err != nil {
+		return  nil,errors.New("Can't make JSON to Byte")
+	}
+	// check and update broker
+	if res.BrokerNo == brkNo {
+		res.BrokerNo = brkNo
+		res.BrokerName = brkName
+		strJson,err  :=  json.Marshal(res)
+		if err != nil{
+			return  nil, errors.New("Can't make string to JSON")
+		}
+		err = stub.PutState(brkNo,strJson)
+		if err != nil {
+			return  nil, errors.New("Can't Put State to Blockchain ")
+		}
+		return AsByteBrk,nil
+	}else {
+		return  nil, errors.New("Broker not found")
+	}
+}
 // ============================================================================================================================
 // Init Customer - create a new customer, store into chaincode state
 // ============================================================================================================================
@@ -276,7 +322,7 @@ func (t *SimpleChaincode) new_customer(stub shim.ChaincodeStubInterface, args []
 
 	//   0       1       2     3
 	// "asdf", "blue", "35", "bob"
-	if len(args) != 4 {
+	if len(args) != 7 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 4")
 	}
 
@@ -294,37 +340,51 @@ func (t *SimpleChaincode) new_customer(stub shim.ChaincodeStubInterface, args []
 	if len(args[3]) <= 0 {
 		return nil, errors.New("4th argument must be a non-empty string")
 	}
-	name := args[0]
-	telno := strings.ToLower(args[1])
-	size, err := strconv.Atoi(args[2])
+	if len(args[4] <= 0){
+		return nil , errors.New("5th argument must be a non-empty string")
+	}
+	if len(args[5] <= 0){
+		return nil, errors.New("6th argument must be a non-empty string")
+	}
+	if len(args[6] <= 0){
+		return nil, errors.New("7th argument must be a non-empty string")
+	}
+	cardid := args[0]
+	name := args[1]
+	telno := strings.ToLower(args[2])
+	size, err := strconv.Atoi(args[3])
 	if err != nil {
 		return nil, errors.New("3rd argument must be a numeric string")
 	}
-	occupation := strings.ToLower(args[3])
+	birthday := args[4]
+	occupation := strings.ToLower(args[5])
+	address := args[6]
 
 	//check if customer already exists
-	customerAsBytes, err := stub.GetState(name)
+	customerAsBytes, err := stub.GetState(cardid)
 	if err != nil {
 		return nil, errors.New("Failed to get customer name")
 	}
 	//jsonMap := make(map[string]interface{})
 	res := Customer{}
 	json.Unmarshal([]byte(customerAsBytes), &res)
-	if res.Name == name {
-		fmt.Println("This customer arleady exists: " + name)
+	if res.CardId == cardid {
+		fmt.Println("This customer arleady exists: " + cardid)
 		fmt.Println(res)
 		return nil, errors.New("This customer arleady exists") //all stop a customer by this name exists
 	}
-
+	res.CardId = cardid
 	res.Name = name
 	res.TelNo = telno
 	res.Age = size
+	res.Birthday = birthday
 	res.Occupation = occupation
+	res.Address = address
 	//build the customer json string manually
 	//str := `{"name": "` + name + `", "telno": "` + telno + `", "size": ` + strconv.Itoa(size) + `, "user": "` + user + `"}`
 	//err = stub.PutState(name, []byte(str)) //store customer with id as key
 	str, err := json.Marshal(res)
-	err = stub.PutState(name, str)
+	err = stub.PutState(cardid, str)
 	if err != nil {
 		return nil, err
 	}
@@ -338,7 +398,7 @@ func (t *SimpleChaincode) new_customer(stub shim.ChaincodeStubInterface, args []
 	json.Unmarshal(customersAsBytes, &customerIndex) //un stringify it aka JSON.parse()
 
 	//append
-	customerIndex = append(customerIndex, name) //add customer name to index list
+	customerIndex = append(customerIndex, cardid) //add customer name to index list
 	fmt.Println("! customer index: ", customerIndex)
 	jsonAsBytes, _ := json.Marshal(customerIndex)
 	err = stub.PutState(customerIndexStr, jsonAsBytes) //store name of customer
@@ -346,7 +406,45 @@ func (t *SimpleChaincode) new_customer(stub shim.ChaincodeStubInterface, args []
 	fmt.Println("- end init customer")
 	return nil, nil
 }
+//=====================================================================================================================
+	//Add Nwe Broker
+//====================================================================================================================
+func (t *SimpleChaincode) newBroker(stub shim.ChaincodeStubInterface, args []string)  ([]byte, error){
+	var err error
+	//check parameter not null
+	if len(args[0]) <= 0 {
+		return nil,errors.New("Broker Number wrong Parameter")
+	}else if len(args[0]) <= 0{
+		return  nil,errors.New("Broker Name wrong Parameter")
+	}
+	brkno := args[0]
+	brkname := args[1]
+	res  := Broker{}
+	AsByteBrk,err := stub.GetState(brkno)
+	if err != nil {
+		return nil, errors.New("Can't Get State from blockchain ")
+	}
+	if json.Unmarshal(AsByteBrk,&res); err != nil {
+		return nil, errors.New("Can't make Json to Bytes ")
+	}
+	if res.BrokerNo == brkno{
+		return nil, errors.New("Broker Duplicate")
+	}else {
+		//add new Broker
+		res.BrokerNo = brkno
+		res.BrokerName = brkname
+		strJson, err := json.Marshal(res)
+		if err != nil {
+			return nil, errors.New("Can't make bye to Json ")
+		}
+		err = stub.PutState(brkno,strJson)
+		if err != nil {
+			return nil, err
+		}
+		return  nil,nil
+	}
 
+}
 // ============================================================================================================================
 // Set User Permission on Customer
 // ============================================================================================================================
