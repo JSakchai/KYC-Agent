@@ -244,7 +244,7 @@ func (t *SimpleChaincode)  update_customer(stub shim.ChaincodeStubInterface, arg
 			return  nil, errors.New("the Name Parameter wrong")
 		}else if len(args[2]) <= 0{
 			return  nil, errors.New("the Telno Parameter wrong")
-		}else if args[3] <= 0 {
+		}else if len(args[3]) <= 0 {
 			return  nil, errors.New("the Age Parameter wrong")
 		}else if len(args[4]) <= 0 {
 			return  nil, errors.New("the birthday Parameter wrong ")
@@ -293,9 +293,7 @@ func  (t *SimpleChaincode) updateBroker(stub shim.ChaincodeStubInterface, args [
 		return nil, errors.New("Can't Get State of broker number from blockchain   ")
 	}
 	res := Broker{}
-	if json.Unmarshal([]byte(AsByteBrk),&res); err != nil {
-		return  nil,errors.New("Can't make JSON to Byte")
-	}
+	json.Unmarshal([]byte(AsByteBrk),&res)
 	// check and update broker
 	if res.BrokerNo == brkNo {
 		res.BrokerNo = brkNo
@@ -424,9 +422,8 @@ func (t *SimpleChaincode) newBroker(stub shim.ChaincodeStubInterface, args []str
 	if err != nil {
 		return nil, errors.New("Can't Get State from blockchain ")
 	}
-	if json.Unmarshal(AsByteBrk,&res); err != nil {
-		return nil, errors.New("Can't make Json to Bytes ")
-	}
+	json.Unmarshal(AsByteBrk,&res)
+	
 	if res.BrokerNo == brkno{
 		return nil, errors.New("Broker Duplicate")
 	}else {
