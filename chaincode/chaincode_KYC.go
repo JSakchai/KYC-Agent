@@ -50,8 +50,8 @@ type Customer struct {
 }
 
 type Broker struct {
-	BrokerName    string     `json:"brokername"`
 	BrokerNo      string      `json:"brokerno"`
+	BrokerName    string     `json:"brokername"`
 	AllowCustomer []Customer `json:"allowcustomer"`
 }
 
