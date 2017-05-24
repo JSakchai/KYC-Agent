@@ -28,6 +28,7 @@ import (
 	//"encoding/gob"
 	//"crypto/rand"
 	//"github.com/fabric/core/ledger/statemgmt"
+	//"github.com/fabric/core/chaincode"
 )
 
 // SimpleChaincode example simple Chaincode implementation
@@ -52,7 +53,16 @@ type Customer struct {
 type Broker struct {
 	BrokerNo      string      `json:"brokerno"`
 	BrokerName    string     `json:"brokername"`
-	AllowCustomer []Customer `json:"allowcustomer"`
+	AllowCustomer []string `json:"allowcustomer"`
+}
+type  guaranteeID struct {
+	GuaranteeID 	string `json:"guarantee_id"`
+	CardID		string	`json:"cardid"`
+	Name 		string	`json:"name"`
+	ExDate		string	`json:"expire_date"`
+	isActive	string	`json:"isActive"`
+	AllowBroke	[]string `json:"allow_broke"`
+	PendingBroke	[]string `json:"pending_broke"`
 }
 
 // ============================================================================================================================
@@ -151,6 +161,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	}else if function == "updateBroker"{
 		res, err := t.updateBroker(stub,args)
 		return  res, err
+	}else if function == "updateAllowBroker"{
+		res,err := t.updateAllowBroker(stub,args)
+		return  res,err
 	}
 	fmt.Println("invoke did not find func: " + function) //error
 
@@ -440,6 +453,84 @@ func (t *SimpleChaincode) newBroker(stub shim.ChaincodeStubInterface, args []str
 		}
 		return  nil,nil
 	}
+
+}
+//==============================================================================================================
+	//update guarantee ID
+//==============================================================================================================
+func (t *SimpleChaincode) updateGuaranteeID(stub shim.ChaincodeStubInterface, args []string)	([]byte, error){
+	var err error
+	if len(args) < 5 {
+		return nil,errors.New("No parameter require")
+	}
+
+	cardid := args[1]
+	name := args[2]
+	AsbyteGusrantee,err := stub.GetState(cardid)
+	if err != nil{
+		return  nil,errors.New("Can't Get State data")
+	}
+	res := guaranteeID{}
+	json.Unmarshal(AsbyteGusrantee,&res)
+	if res.CardID == cardid {
+		res.Name = name
+		fmt.Println("update success")
+		strJson,err := json.Marshal(cardid)
+		if err != nil {
+			return nil,errors.New("Can't make to json ")
+		}
+		err  = stub.PutState(cardid,strJson)
+		if err != nil{
+			return  nil,errors.New("Can't put state to block chain ")
+		}
+		return []byte(res.Name),nil
+	}else {
+		return  nil , errors.New("Card id not found")
+	}
+
+}
+//===========================================================================================================
+	//update allow broker
+//==========================================================================================================
+func (t *SimpleChaincode) updateAllowBroker(stub shim.ChaincodeStubInterface, args []string)	([]byte, error){
+	var err error
+	//Assume consensus node allowed all broker
+	if len(args) < 2{
+		return nil, errors.New("Require Paremeter wrong")
+	}
+	cardid := args[0]
+	guarantee_id := args[1]
+	allowBrk := args[2]
+	res_Cust_Brk := Customer{}
+	AsBytecustomer,err :=  stub.GetState(cardid)
+	if err != nil {
+		return errors.New("")
+	}else if len(cardid) == 0 {
+		return nil,errors.New("Argument is NULL")
+	}else if len(guarantee_id) == 0{
+		return nil , errors.New("Argument is NULL")
+	}else if len(allowBrk) == 0 {
+		return  nil,errors.New("Argument is NULL")
+	}else {
+		json.Unmarshal(AsBytecustomer,&res_Cust_Brk)
+		if res_Cust_Brk.CardId == cardid && res_Cust_Brk.GauranteeID == guarantee_id {
+			res_Cust_Brk.AllowBroke = allowBrk
+			strJson,err := json.Marshal(res_Cust_Brk)
+			if err != nil{
+				return nil ,errors.New("Can't make to JSON")
+			}
+			err = stub.PutState(cardid,strJson)
+			if err != nil{
+				return  nil,errors.New("Can't put state to block chain")
+			}
+		}else {
+			return  nil ,errors.New("Card ID not found")
+		}
+
+		return  res_Cust_Brk.AllowBroke,nil
+	}
+
+
 
 }
 // ============================================================================================================================
