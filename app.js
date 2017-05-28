@@ -142,7 +142,6 @@ require('cf-deployment-tracker-client').track();		//reports back to us, this hel
 
 //var part2 = require('./utils/ws_part2');		
 var obj_kyc = require('./utils/kyc');												//websocket message processing for part 2
-=======
 //var part2 = require('./utils/ws_part2');														//websocket message processing for part 2
 var kycp1 = require('./utils/kyc_part1');
 
@@ -351,7 +350,6 @@ function cb_deployed(e){
 					obj_kyc.process_msg(ws,data);
 					//part1.process_msg(ws, data);											//pass the websocket msg to part 1 processing
 					//part2.process_msg(ws, data);											//pass the websocket msg to part 2 processing
-=======
 					//part1.process_msg(ws, data);											//pass the websocket msg to part 1 processing
 					//part2.process_msg(ws, data);											//pass the websocket msg to part 2 processing
 					kycp1.process_msg(ws, data);
@@ -445,4 +443,5 @@ function cb_deployed(e){
 			}*/
 		});
 	}
+});
 }
