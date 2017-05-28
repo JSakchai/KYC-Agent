@@ -16,7 +16,10 @@ under the License.
 */
 
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 package main
 
 import (
@@ -29,7 +32,11 @@ import (
 	"strings"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
+<<<<<<< HEAD
 	"github.com/derekparker/delve/pkg/dwarf/line"
+=======
+	//"github.com/derekparker/delve/pkg/dwarf/line"
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 )
 
 // SimpleChaincode example simple Chaincode implementation
@@ -44,6 +51,7 @@ var customerKey = "cus_"
 
 // BrokerKey key of broker
 var BrokerKey = "bro_"
+<<<<<<< HEAD
 
 // GuaranteeIDKey key of guarantee id
 var GuaranteeIDKey = "gua_"
@@ -51,6 +59,15 @@ var GuaranteeIDKey = "gua_"
 // CusGuaIDKey key of something
 var CusGuaIDKey = "cgi_"
 
+=======
+
+// GuaranteeIDKey key of guarantee id
+var GuaranteeIDKey = "gua_"
+
+// CusGuaIDKey key of something
+var CusGuaIDKey = "cgi_"
+
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 //Customer is Customer
 type Customer struct {
 	Name       string `json:"name"` //the fieldtags are needed to keep case from bouncing around
@@ -60,6 +77,7 @@ type Customer struct {
 	Occupation string `json:"occupation"`
 	Address    string `json:"address"`
 	Creator    string `json:"creator"`
+<<<<<<< HEAD
 }
 
 //GuaranteeID generate from Customer
@@ -70,6 +88,18 @@ type GuaranteeID struct {
 	PendingBroke []int  `json:"pendingbroke"`
 }
 
+=======
+}
+
+//GuaranteeID generate from Customer
+type GuaranteeID struct {
+	GuaranteeID  string `json:"guaranteeid"`
+	CustomerID   string `json:"customerid"`
+	AllowBroke   []int  `json:"allowbroke"`
+	PendingBroke []int  `json:"pendingbroke"`
+}
+
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 // type CusGuaID struct {
 // 	CardID      string      `json:"cardid"`
 // 	Customer    Customer    `json:"customer"`
@@ -228,6 +258,14 @@ func (t *SimpleChaincode) readcustomer(stub shim.ChaincodeStubInterface, args []
 
 	return valAsbytes, nil //send it onward
 }
+<<<<<<< HEAD
+
+// ============================================================================================================================
+// Read - read a variable from chaincode state by guaranteeid
+// ============================================================================================================================
+func (t *SimpleChaincode) readcustomergid(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var gid, jsonResp string
+=======
 
 // ============================================================================================================================
 // Read - read a variable from chaincode state by guaranteeid
@@ -258,12 +296,40 @@ func (t *SimpleChaincode) readcustomergid(stub shim.ChaincodeStubInterface, args
 // ============================================================================================================================
 func (t *SimpleChaincode) readbroker(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var brokeno, jsonResp string
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 	var err error
 
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the var to query")
 	}
 
+<<<<<<< HEAD
+	gid = args[0]
+	valAsbytes, err := stub.GetState(GuaranteeIDKey + gid) //get the var from chaincode state
+	if err != nil {
+		jsonResp = "{\"Error\":\"Failed to get state for " + gid + "\"}"
+		return nil, errors.New(jsonResp)
+	}
+
+	gua := GuaranteeID{}
+	json.Unmarshal(valAsbytes, &gua)
+
+	return valAsbytes, nil //send it onward
+}
+
+// ============================================================================================================================
+// Read - read a variable from chaincode state by brokeno
+// ============================================================================================================================
+func (t *SimpleChaincode) readbroker(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var brokeno, jsonResp string
+	var err error
+
+	if len(args) != 1 {
+		return nil, errors.New("Incorrect number of arguments. Expecting name of the var to query")
+	}
+
+=======
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 	brokeno = args[0]
 	valAsbytes, err := stub.GetState(BrokerKey + brokeno) //get the var from chaincode state
 	if err != nil {
@@ -393,9 +459,15 @@ func (t *SimpleChaincode) customerallow(stub shim.ChaincodeStubInterface, args [
 		gua.AllowBroke = append(gua.AllowBroke, brokeNo)
 		broke.AllowCustomer = append(broke.AllowCustomer, gid)
 	}
+<<<<<<< HEAD
 
 	//write state
 
+=======
+
+	//write state
+
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 	jsonAsBytes, _ := json.Marshal(broke)
 	err = stub.PutState(BrokerKey+brokeNoAsString, jsonAsBytes) //rewrite the customer with id as key
 	if err != nil {
@@ -412,7 +484,11 @@ func (t *SimpleChaincode) customerallow(stub shim.ChaincodeStubInterface, args [
 	return nil, nil
 }
 // ==================================================================================================================
+<<<<<<< HEAD
 // cancel Allow broker
+=======
+	// cancel Allow broker
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 // ==================================================================================================================
 func (t *SimpleChaincode) cancelAllow(stub shim.ChaincodeStubInterface, args []string) ([]byte , error){
 	var err error
@@ -443,7 +519,11 @@ func (t *SimpleChaincode) cancelAllow(stub shim.ChaincodeStubInterface, args []s
 	json.Unmarshal(brokerAsBye,&resBrk)
 	for i := len(resBrk.AllowCustomer) -1;i<0;i-- {
 		if resBrk.AllowCustomer[i] == gid {
+<<<<<<< HEAD
 			delete(resBrk.AllowCustomer[i],gid) //remove guarantee ID from allowCustomer of Broker structure
+=======
+			delete(resBrk.AllowCustomer,gid) //remove guarantee ID from allowCustomer of Broker structure
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 			append(resBrk.PendingCustomer,gid) //add guarantee ID form pendingCustomer of Broker struct
 
 		}
@@ -462,7 +542,11 @@ func (t *SimpleChaincode) cancelAllow(stub shim.ChaincodeStubInterface, args []s
 	return nil,nil
 }
 // =================================================================================================================
+<<<<<<< HEAD
 //Reject Broker nubmer
+=======
+	//Reject Broker nubmer
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 // =================================================================================================================
 func (t *SimpleChaincode) rejectBroker(stub shim.ChaincodeStubInterface, args []string) ([]byte, error){
 	var err error
@@ -605,6 +689,8 @@ func (t *SimpleChaincode) newcustomer(stub shim.ChaincodeStubInterface, args []s
 	//err = stub.PutState(name, []byte(str)) //store customer with id as key
 	str, err := json.Marshal(res)
 	err = stub.PutState(customerKey+name, str)
+<<<<<<< HEAD
+=======
 	if err != nil {
 		return nil, err
 	}
@@ -624,10 +710,33 @@ func (t *SimpleChaincode) newcustomer(stub shim.ChaincodeStubInterface, args []s
 
 	str, err = json.Marshal(guaranteeID)
 	err = stub.PutState(GuaranteeIDKey+guaranteeID.GuaranteeID, str)
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
+	if err != nil {
+		return nil, err
+	}
+	err = stub.PutState(customerKey+cardid, str)
 	if err != nil {
 		return nil, err
 	}
 
+	sha256AsByte := sha256.Sum256(str)
+
+	guaranteeID := GuaranteeID{}
+	var emptyIntArray []int
+	guaranteeID.GuaranteeID = strings.ToUpper(hex.EncodeToString(sha256AsByte[:]))
+	guaranteeID.CustomerID = res.CardID
+	guaranteeID.AllowBroke = emptyIntArray
+	guaranteeID.PendingBroke = emptyIntArray
+
+<<<<<<< HEAD
+	str, err = json.Marshal(guaranteeID)
+	err = stub.PutState(GuaranteeIDKey+guaranteeID.GuaranteeID, str)
+	if err != nil {
+		return nil, err
+	}
+
+=======
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 	//gid := GuaranteeID{}
 	// h := sha1.New()
 	// h.Write([]byte(res))
@@ -661,6 +770,7 @@ func (t *SimpleChaincode) newbroke(stub shim.ChaincodeStubInterface, args []stri
 	// "name", "brokeID"
 	if len(args) != 2 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 4")
+<<<<<<< HEAD
 	}
 
 	//input sanitation
@@ -672,11 +782,25 @@ func (t *SimpleChaincode) newbroke(stub shim.ChaincodeStubInterface, args []stri
 		return nil, errors.New("2nd argument must be a non-empty string")
 	}
 
+=======
+	}
+
+	//input sanitation
+	fmt.Println("- start init customer")
+	if len(args[0]) <= 0 {
+		return nil, errors.New("1st argument must be a non-empty string")
+	}
+	if len(args[1]) <= 0 {
+		return nil, errors.New("2nd argument must be a non-empty string")
+	}
+
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 	name := args[0]
 	brokeNoAsString := args[1]
 	brokeNo, err := strconv.Atoi(args[1])
 	if err != nil {
 		return nil, errors.New("2nd argument must be a numeric string")
+<<<<<<< HEAD
 	}
 
 	//check if broker already exists
@@ -692,6 +816,23 @@ func (t *SimpleChaincode) newbroke(stub shim.ChaincodeStubInterface, args []stri
 		return nil, errors.New("This broker arleady exists") //all stop a broker by this name exists
 	}
 
+=======
+	}
+
+	//check if broker already exists
+	brokerAsBytes, err := stub.GetState(brokeNoAsString)
+	if err != nil {
+		return nil, errors.New("Failed to get broker name")
+	}
+	res := Broker{}
+	json.Unmarshal(brokerAsBytes, &res)
+	if res.BrokerNo == brokeNo {
+		fmt.Println("This broker arleady exists: " + name)
+		fmt.Println(res)
+		return nil, errors.New("This broker arleady exists") //all stop a broker by this name exists
+	}
+
+>>>>>>> c4fb33d369f660b48d0b8de3871af17f83cd8e44
 	res.Name = name
 	res.BrokerNo = brokeNo
 	//build the broker json string manually
