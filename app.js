@@ -139,12 +139,8 @@ require('cf-deployment-tracker-client').track();		//reports back to us, this hel
 // 														Work Area
 // ============================================================================================================================
 //var part1 = require('./utils/ws_part1');														//websocket message processing for part 1
-
-//var part2 = require('./utils/ws_part2');		
-var obj_kyc = require('./utils/kyc');												//websocket message processing for part 2
 //var part2 = require('./utils/ws_part2');														//websocket message processing for part 2
 var kycp1 = require('./utils/kyc_part1');
-
 var ws = require('ws');																			//websocket mod
 var wss = {};
 var Ibc1 = require('ibm-blockchain-js');														//rest based SDK for ibm blockchain
@@ -204,7 +200,9 @@ if(process.env.VCAP_SERVICES){																	//load from vcap, search for serv
 function prefer_type2_users(user_array){
 	var ret = [];
 	for(var i in users){
-		if(users[i].enrollId.indexOf('type3') >= 0) {	//gather the type1 users
+		if(users[i].enrollId.indexOf('type2') >= 0) {	//gather the type1 users
+			ret.push(users[i]);
+		}
 	}
 
 	if(ret.length === 0) ret = user_array;				//if no users found, just use what we have
@@ -243,6 +241,9 @@ var options = 	{
 						//hashed cc name from prev deployment, comment me out to always deploy, uncomment me when its already deployed to skip deploying again
 						//deployed_name: '16e655c0fce6a9882896d3d6d11f7dcd4f45027fd4764004440ff1e61340910a9d67685c4bb723272a497f3cf428e6cf6b009618612220e1471e03b6c0aa76cb'
 
+						//deploy_name:'292bcbe1e9e5b4e496299195d474c12566c8c983dcd85def92ecd2e71fda7ab0f3ae6900995e0b72e9d6264ceb2d999ba255c2666105173c844e6cce5fab649a'
+
+						
 					}
 				};
 if(process.env.VCAP_SERVICES){
@@ -263,14 +264,9 @@ ibc.load(options, function (err, cc){														//parse/load chaincode, respo
 	}
 	else{
 		chaincode = cc;
-
-		obj_kyc.setup(ibc,cc);
-		//part1.setup(ibc, cc);																//pass the cc obj to part 1 node code
-		//part2.setup(ibc, cc);																//pass the cc obj to part 2 node code
 		//part1.setup(ibc, cc);																//pass the cc obj to part 1 node code
 		//part2.setup(ibc, cc);																//pass the cc obj to part 2 node code
 		kycp1.setup(ibc, cc);
-
 
 
 		// ---- To Deploy or Not to Deploy ---- //
@@ -347,9 +343,6 @@ function cb_deployed(e){
 				console.log('received ws msg:', message);
 				try{
 					var data = JSON.parse(message);
-					obj_kyc.process_msg(ws,data);
-					//part1.process_msg(ws, data);											//pass the websocket msg to part 1 processing
-					//part2.process_msg(ws, data);											//pass the websocket msg to part 2 processing
 					//part1.process_msg(ws, data);											//pass the websocket msg to part 1 processing
 					//part2.process_msg(ws, data);											//pass the websocket msg to part 2 processing
 					kycp1.process_msg(ws, data);
@@ -443,5 +436,4 @@ function cb_deployed(e){
 			}*/
 		});
 	}
-});
 }
