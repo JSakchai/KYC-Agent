@@ -437,7 +437,7 @@ func (t *SimpleChaincode) cancelAllow(stub shim.ChaincodeStubInterface, args []s
 			resGID.PendingBroke =append(resGID.PendingBroke,brkNO) //add broker number to pendingBroker of Guarantee structure
 		}
 	}
-	brokerAsBye,err := stub.GetState(BrokerKey + brkNO)
+	brokerAsBye,err := stub.GetState(brkNO)
 	resBrk := Broker{}
 	json.Unmarshal(brokerAsBye,&resBrk)
 	for i := len(resBrk.AllowCustomer) -1;i<0;i-- {
@@ -454,7 +454,7 @@ func (t *SimpleChaincode) cancelAllow(stub shim.ChaincodeStubInterface, args []s
 		return nil, errors.New("Can't put state Guarantee ID")
 	}
 	jsonBrkAsByte, _ := json.Marshal(resBrk)
-	err = stub.PutState(BrokerKey + string(brkNO),jsonBrkAsByte)
+	err = stub.PutState(BrokerKey + brkNO,jsonBrkAsByte)
 	if err != nil {
 		return nil, errors.New("Can't put state Broker Number")
 	}
@@ -485,7 +485,7 @@ func (t *SimpleChaincode) rejectBroker(stub shim.ChaincodeStubInterface, args []
 			fmt.Printf("after append in pending Broker: %v",resGID.PendingBroke)
 		}
 	}
-	brkAsByte,err := stub.GetState(BrokerKey + brkNO)
+	brkAsByte,err := stub.GetState(brkNO)
 	resBrk := Broker{}
 	json.Unmarshal(brkAsByte,&resBrk)
 	for i := len(resBrk.PendingCustomer) -1 ;i <0;i-- {
@@ -505,7 +505,7 @@ func (t *SimpleChaincode) rejectBroker(stub shim.ChaincodeStubInterface, args []
 	}
 	//write key broker number
 	jsonBrkAsByte,_ := json.Marshal(resBrk)
-	err = stub.PutState(BrokerKey + string(brkNO), jsonBrkAsByte)
+	err = stub.PutState(brkNO, jsonBrkAsByte)
 	if err != nil {
 		return nil, errors.New("Can't put stat Broker number")
 	}
