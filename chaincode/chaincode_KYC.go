@@ -434,7 +434,7 @@ func (t *SimpleChaincode) cancelAllow(stub shim.ChaincodeStubInterface, args []s
 	for i := len(resGID.AllowBroke) -1 ;i < 0 ;i-- {
 		if resGID.AllowBroke[i] == brkNO {
 			resGID.AllowBroke = append(resGID.AllowBroke[:i],resGID.AllowBroke[i+1:]...) //remove broker number from allowbroker of  Guarantee structure
-			append(resGID.PendingBroke,brkNO) //add broker number to pendingBroker of Guarantee structure
+			resGID.PendingBroke =append(resGID.PendingBroke,brkNO) //add broker number to pendingBroker of Guarantee structure
 		}
 	}
 	brokerAsBye,err := stub.GetState(BrokerKey + brkNO)
@@ -443,7 +443,7 @@ func (t *SimpleChaincode) cancelAllow(stub shim.ChaincodeStubInterface, args []s
 	for i := len(resBrk.AllowCustomer) -1;i<0;i-- {
 		if resBrk.AllowCustomer[i] == gid {
 			resBrk.AllowCustomer = append(resBrk.AllowCustomer[:i],resBrk.AllowCustomer[i+1:]...) //remove guarantee ID from allowCustomer of Broker structure
-			append(resBrk.PendingCustomer,gid) //add guarantee ID form pendingCustomer of Broker struct
+			resBrk.PendingCustomer =append(resBrk.PendingCustomer,gid) //add guarantee ID form pendingCustomer of Broker struct
 
 		}
 	}
@@ -492,7 +492,7 @@ func (t *SimpleChaincode) rejectBroker(stub shim.ChaincodeStubInterface, args []
 		if resBrk.PendingCustomer[i] == gid {
 			fmt.Printf("before append in Pending Customer: %v",resBrk.PendingCustomer)
 			resBrk.PendingCustomer = append(resBrk.PendingCustomer[:i],resBrk.PendingCustomer[i+1:]...) //remove from pending of struct Broker
-			append(resBrk.rejectCustomer,gid) //add to reject broker of struct broker
+			resBrk.rejectCustomer =append(resBrk.rejectCustomer,gid) //add to reject broker of struct broker
 			fmt.Printf("after append in Pending Customer: %v",resBrk.PendingCustomer)
 			fmt.Printf("after append in Pending Customer: %v",resBrk.rejectCustomer)
 		}
