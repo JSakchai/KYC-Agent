@@ -52,11 +52,9 @@ else if(process.env.PORT){
 else{
 	exports.SERVER = 	{
 							HOST:'localhost',
-							//PORT: 3000,
-							PORT: 5000,
+							PORT: 3000,
 							DESCRIPTION: 'Localhost',
-							//EXTURI: 'localhost:3000',	//no longer used 4/29/2016
-							EXTURI: 'localhost:5000',
+							EXTURI: 'localhost:3000',	//no longer used 4/29/2016
 						 };
 }
 

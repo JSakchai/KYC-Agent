@@ -138,9 +138,8 @@ require('cf-deployment-tracker-client').track();		//reports back to us, this hel
 // ============================================================================================================================
 // 														Work Area
 // ============================================================================================================================
-//var part1 = require('./utils/ws_part1');														//websocket message processing for part 1
-//var part2 = require('./utils/ws_part2');														//websocket message processing for part 2
-var kycp1 = require('./utils/kyc_part1');
+var part1 = require('./utils/ws_part1');														//websocket message processing for part 1
+var part2 = require('./utils/ws_part2');														//websocket message processing for part 2
 var ws = require('ws');																			//websocket mod
 var wss = {};
 var Ibc1 = require('ibm-blockchain-js');														//rest based SDK for ibm blockchain
@@ -153,22 +152,15 @@ try{
 	//this hard coded list is intentionaly left here, feel free to use it when initially starting out
 	//please create your own network when you are up and running
 	//var manual = JSON.parse(fs.readFileSync('mycreds_docker_compose.json', 'utf8'));
-
-	var file = fs.readFileSync('mycreds_bluemix.json', 'utf8');
-	var manual = JSON.parse(file);
-	//console.log('manual :', manual);	
-
 	var manual = JSON.parse(fs.readFileSync('mycreds_bluemix.json', 'utf8'));
-
 	var peers = manual.credentials.peers;
-	//console.log('peers :', peers);
 	console.log('loading hardcoded peers');
 	var users = null;																			//users are only found if security is on
 	if(manual.credentials.users) users = manual.credentials.users;
 	console.log('loading hardcoded users');
 }
 catch(e){
-	console.log('Error - could not find hardcoded peers/[users], this is okay if running in bluemix');
+	console.log('Error - could not find hardcoded peers/users, this is okay if running in bluemix');
 }
 
 // ---- Load From VCAP aka Bluemix Services ---- //
@@ -197,10 +189,10 @@ if(process.env.VCAP_SERVICES){																	//load from vcap, search for serv
 }
 
 //filter for type1 users if we have any
-function prefer_type2_users(user_array){
+function prefer_type1_users(user_array){
 	var ret = [];
 	for(var i in users){
-		if(users[i].enrollId.indexOf('type2') >= 0) {	//gather the type1 users
+		if(users[i].enrollId.indexOf('type1') >= 0) {	//gather the type1 users
 			ret.push(users[i]);
 		}
 	}
@@ -224,7 +216,7 @@ function detect_tls_or_not(peer_array){
 var options = 	{
 					network:{
 						peers: [peers[0]],																	//lets only use the first peer! since we really don't need any more than 1
-						users: prefer_type2_users(users),													//dump the whole thing, sdk will parse for a good one
+						users: prefer_type1_users(users),													//dump the whole thing, sdk will parse for a good one
 						options: {
 									quiet: true, 															//detailed debug messages on/off true/false
 									tls: detect_tls_or_not(peers), 											//should app to peer communication use tls?
@@ -232,18 +224,12 @@ var options = 	{
 								}
 					},
 					chaincode:{
-						//zip_url: 'https://github.com/ibm-blockchain/marbles/archive/v2.0.zip',
-						//unzip_dir: 'marbles-2.0/chaincode',													//subdirectroy name of chaincode after unzipped
-						//git_url: 'http://gopkg.in/ibm-blockchain/marbles.v2/chaincode',						//GO get http url
-						zip_url: 'https://github.com/JSakchai/KYC-Agent/archive/v2.0.zip',
-						unzip_dir: 'KYC-Agent-2.0/chaincode',													//subdirectroy name of chaincode after unzipped
-						git_url: 'http://gopkg.in/JSakchai/KYC-Agent.v2/chaincode',						//GO get http url
+						zip_url: 'https://github.com/ibm-blockchain/marbles/archive/v2.0.zip',
+						unzip_dir: 'marbles-2.0/chaincode',													//subdirectroy name of chaincode after unzipped
+						git_url: 'http://gopkg.in/ibm-blockchain/marbles.v2/chaincode',						//GO get http url
+					
 						//hashed cc name from prev deployment, comment me out to always deploy, uncomment me when its already deployed to skip deploying again
 						//deployed_name: '16e655c0fce6a9882896d3d6d11f7dcd4f45027fd4764004440ff1e61340910a9d67685c4bb723272a497f3cf428e6cf6b009618612220e1471e03b6c0aa76cb'
-
-						//deploy_name:'292bcbe1e9e5b4e496299195d474c12566c8c983dcd85def92ecd2e71fda7ab0f3ae6900995e0b72e9d6264ceb2d999ba255c2666105173c844e6cce5fab649a'
-
-						
 					}
 				};
 if(process.env.VCAP_SERVICES){
@@ -253,21 +239,15 @@ if(process.env.VCAP_SERVICES){
 
 // ---- Fire off SDK ---- //
 var chaincode = null;																		//sdk will populate this var in time, lets give it high scope by creating it here
-console.log('peer : ',options.network.peers)
-console.log('============================================================')
 ibc.load(options, function (err, cc){														//parse/load chaincode, response has chaincode functions!
-	console.log('cc : ', cc)
-	console.log('============================================================')
 	if(err != null){
 		console.log('! looks like an error loading the chaincode or network, app will fail\n', err);
 		if(!process.error) process.error = {type: 'load', msg: err.details};				//if it already exist, keep the last error
 	}
 	else{
 		chaincode = cc;
-		//part1.setup(ibc, cc);																//pass the cc obj to part 1 node code
-		//part2.setup(ibc, cc);																//pass the cc obj to part 2 node code
-		kycp1.setup(ibc, cc);
-
+		part1.setup(ibc, cc);																//pass the cc obj to part 1 node code
+		part2.setup(ibc, cc);																//pass the cc obj to part 2 node code
 
 		// ---- To Deploy or Not to Deploy ---- //
 		if(!cc.details.deployed_name || cc.details.deployed_name === ''){					//yes, go deploy
@@ -295,16 +275,14 @@ function check_if_deployed(e, attempt){
 	}
 	else{
 		console.log('[preflight check]', attempt, ': testing if chaincode is ready');
-		chaincode.query.read(['_customerindex'], function(err, resp){
-			/*console.log('[err]', err);
-			console.log('[resp]', resp);*/
+		chaincode.query.read(['_marbleindex'], function(err, resp){
 			var cc_deployed = false;
 			try{
 				if(err == null){															//no errors is good, but can't trust that alone
-					if(resp === 'null') cc_deployed = true;									//looks alright, brand new, no customers yet
+					if(resp === 'null') cc_deployed = true;									//looks alright, brand new, no marbles yet
 					else{
 						var json = JSON.parse(resp);
-						if(json.constructor === Array) cc_deployed = true;					//looks alright, we have customers
+						if(json.constructor === Array) cc_deployed = true;					//looks alright, we have marbles
 					}
 				}
 			}
@@ -343,9 +321,8 @@ function cb_deployed(e){
 				console.log('received ws msg:', message);
 				try{
 					var data = JSON.parse(message);
-					//part1.process_msg(ws, data);											//pass the websocket msg to part 1 processing
-					//part2.process_msg(ws, data);											//pass the websocket msg to part 2 processing
-					kycp1.process_msg(ws, data);
+					part1.process_msg(ws, data);											//pass the websocket msg to part 1 processing
+					part2.process_msg(ws, data);											//pass the websocket msg to part 2 processing
 				}
 				catch(e){
 					console.log('ws message error', e);
@@ -375,8 +352,8 @@ function cb_deployed(e){
 				console.log('hey new block, lets refresh and broadcast to all', chain_stats.height-1);
 				ibc.block_stats(chain_stats.height - 1, cb_blockstats);
 				wss.broadcast({msg: 'reset'});
-				chaincode.query.read(['_customerindex'], cb_got_index);
-				//chaincode.query.read(['_opentrades'], cb_got_trades);
+				chaincode.query.read(['_marbleindex'], cb_got_index);
+				chaincode.query.read(['_opentrades'], cb_got_trades);
 			}
 			
 			//got the block's stats, lets send the statistics
@@ -389,38 +366,38 @@ function cb_deployed(e){
 				}
 			}
 			
-			//got the customer index, lets get each customer
+			//got the marble index, lets get each marble
 			function cb_got_index(e, index){
-				if(e != null) console.log('customer index error:', e);
+				if(e != null) console.log('marble index error:', e);
 				else{
 					try{
 						var json = JSON.parse(index);
 						for(var i in json){
 							console.log('!', i, json[i]);
-							chaincode.query.read([json[i]], cb_got_customer);					//iter over each, read their values
+							chaincode.query.read([json[i]], cb_got_marble);					//iter over each, read their values
 						}
 					}
 					catch(e){
-						console.log('customers index msg error:', e);
+						console.log('marbles index msg error:', e);
 					}
 				}
 			}
 			
-			//call back for getting a customer, lets send a message
-			function cb_got_customer(e, customer){
-				if(e != null) console.log('customer error:', e);
+			//call back for getting a marble, lets send a message
+			function cb_got_marble(e, marble){
+				if(e != null) console.log('marble error:', e);
 				else {
 					try{
-						wss.broadcast({msg: 'customers', customer: JSON.parse(customer)});
+						wss.broadcast({msg: 'marbles', marble: JSON.parse(marble)});
 					}
 					catch(e){
-						console.log('customer msg error', e);
+						console.log('marble msg error', e);
 					}
 				}
 			}
 			
 			//call back for getting open trades, lets send the trades
-			/*function cb_got_trades(e, trades){
+			function cb_got_trades(e, trades){
 				if(e != null) console.log('trade error:', e);
 				else {
 					try{
@@ -433,7 +410,7 @@ function cb_deployed(e){
 						console.log('trade msg error', e);
 					}
 				}
-			}*/
+			}
 		});
 	}
 }
