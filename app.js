@@ -200,7 +200,7 @@ if(process.env.VCAP_SERVICES){																	//load from vcap, search for serv
 function prefer_type2_users(user_array){
 	var ret = [];
 	for(var i in users){
-		if(users[i].enrollId.indexOf('type2') >= 0) {	//gather the type1 users
+		if(users[i].enrollId.indexOf('type1') >= 0) {	//gather the type1 users
 			ret.push(users[i]);
 		}
 	}
