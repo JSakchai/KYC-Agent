@@ -197,7 +197,7 @@ if(process.env.VCAP_SERVICES){																	//load from vcap, search for serv
 }
 
 //filter for type1 users if we have any
-function prefer_type2_users(user_array){
+function prefer_type1_users(user_array){
 	var ret = [];
 	for(var i in users){
 		if(users[i].enrollId.indexOf('type1') >= 0) {	//gather the type1 users
@@ -224,7 +224,7 @@ function detect_tls_or_not(peer_array){
 var options = 	{
 					network:{
 						peers: [peers[0]],																	//lets only use the first peer! since we really don't need any more than 1
-						users: prefer_type2_users(users),													//dump the whole thing, sdk will parse for a good one
+						users: prefer_type1_users(users),													//dump the whole thing, sdk will parse for a good one
 						options: {
 									quiet: true, 															//detailed debug messages on/off true/false
 									tls: detect_tls_or_not(peers), 											//should app to peer communication use tls?
